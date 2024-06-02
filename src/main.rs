@@ -1,6 +1,7 @@
-use actix_web::{get, web, App, HttpResponse, HttpServer, Responder, Result};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use env_logger::Env;
 use serde::Serialize;
+use dotenv::dotenv;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness};
 #[macro_use]
 extern crate diesel_migrations;
@@ -8,6 +9,7 @@ extern crate diesel_migrations;
 mod handlers;
 mod models;
 mod repository;
+mod error_handler;
 
 #[derive(Serialize)]
 pub struct Response {
@@ -30,32 +32,34 @@ async fn health() -> impl Responder {
     })
 }
 
-async fn not_found_error() -> Result<HttpResponse> {
-    Ok(HttpResponse::NotFound().json(Response {
-        status: "error".to_string(),
-        message: "Not Found".to_string(),
-    }))
-}
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenv().ok();
 
+    let log_level = std::env::var("LOG_LEVEL").expect("LOG_LEVEL must be set.");
+    let host = std::env::var("HOST").expect("HOST must be set.");
+    let port = std::env::var("PORT").expect("PORT must be set.");
     let events_db = repository::database::Database::new();
+
     run_migrations(&mut events_db.pool.get().unwrap());
+
     let app_data = web::Data::new(events_db);
     
-
-       env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    env_logger::Builder::from_env(Env::default().default_filter_or(format!("{}",log_level))).init();
+    
     HttpServer::new(move || {
         App::new()
             .app_data(app_data.clone())
-            .configure(handlers::bank::init_routes)
             .service(health)
-            .default_service(web::route().to(not_found_error))
+            .service(web::scope("/api")
+                .configure(handlers::bank::init_routes)
+                .configure(handlers::agency::init_routes)
+            )
             .wrap(actix_web::middleware::Logger::default())
 
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind(format!("{}:{}", host, port))?
     .run()
     .await
+
 }

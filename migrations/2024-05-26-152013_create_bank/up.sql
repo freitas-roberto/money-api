@@ -2,8 +2,8 @@ CREATE TABLE banks (
    id            SERIAL       NOT NULL,
    code          TEXT         NOT NULL,
    name          TEXT         NOT NULL,
-   created_at    TIMESTAMP    DEFAULT (timezone('utc', now())),
-   updated_at    TIMESTAMP,
+   created_at    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   updated_at    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
    CONSTRAINT banks_pk PRIMARY KEY(id),
    CONSTRAINT banks_uk01 UNIQUE(code),
    CONSTRAINT banks_uk02 UNIQUE(name)

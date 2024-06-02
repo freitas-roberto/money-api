@@ -930,6 +930,7 @@ dependencies = [
  "env_logger",
  "r2d2",
  "serde",
+ "serde_json",
  "uuid",
 ]
 

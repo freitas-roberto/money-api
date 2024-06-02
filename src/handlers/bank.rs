@@ -1,48 +1,50 @@
-use actix_web::{web,get,post,delete,put,HttpResponse};
-use crate::{models::bank::{NewBank},repository::database::Database};
+use actix_web::{web, get, post, put, delete, HttpResponse};
+use crate::error_handler::CustomError;
+use crate::models::bank::{Bank, Banks};
 
 #[get("/banks")]
-async fn get_banks(db:web::Data<Database>)->HttpResponse{
-    let banks = db.get_banks();
-    HttpResponse::Ok().json(banks)
+async fn get_banks() -> Result<HttpResponse, CustomError> {
+    let banks = Banks::get_banks()?;
+    Ok(HttpResponse::Ok().json(banks))
 }
 
 #[get("/banks/{id}")]
-async fn get_bank(db:web::Data<Database>, path:web::Path<i32>)->HttpResponse{
-    let bank = db.get_bank(path.into_inner());
-    match bank {
-        Some(bank)=>HttpResponse::Ok().json(bank),
-        None=>HttpResponse::NotFound().body("Not Found")
-    }
+async fn get_bank(path:web::Path<i32>) -> Result<HttpResponse, CustomError> {
+    let bank_id = path.into_inner();
+    let banks = Banks::get_bank(bank_id)?;
+    Ok(HttpResponse::Ok().json(banks))
 }
 
 #[post("/banks")]
-async fn create_bank(db:web::Data<Database>, bank:web::Json<NewBank>)->HttpResponse{
-    let bank = db.create_bank(bank.into_inner());
-    match bank {
-        Ok(bank)=>HttpResponse::Ok().json(bank),
-        Err(_)=>HttpResponse::InternalServerError().body("Internal Server Error")
-    }
+async fn create_bank(bank:web::Json<Bank>) -> Result<HttpResponse, CustomError> {
+    let bank = Banks::create_bank(bank.into_inner())?;
+    let bank_uri = format!("/banks/{}", bank.id);
+    Ok(HttpResponse::Created().append_header(("Location", bank_uri)).finish())
 }
 
 #[put("/banks/{id}")]
-async fn update_bank(db:web::Data<Database>, id: web::Path<i32>, bank:web::Json<NewBank>)->HttpResponse{
-    let bank = db.update_bank(id.into_inner(), bank.into_inner());
-    match bank {
-        Ok(bank)=>HttpResponse::Ok().json(bank),
-        Err(_)=>HttpResponse::InternalServerError().body("Internal Server Error")
-    }
+async fn update_bank(path: web::Path<i32>, bank:web::Json<Bank>) -> Result<HttpResponse, CustomError>  {
+    let bank = Banks::update_bank(path.into_inner(), bank.into_inner())?;
+    Ok(HttpResponse::Ok().json(bank))
 }
 
 #[delete("/banks/{id}")]
-async fn delete_bank(db:web::Data<Database>, path:web::Path<i32>)->HttpResponse{
-    let bank = db.delete_bank(path.into_inner());
-    match bank {
-        Ok(bank)=>HttpResponse::Ok().json(bank),
-        Err(_)=>HttpResponse::InternalServerError().body("Internal Server Error")
-    }
+async fn delete_bank(path:web::Path<i32>) -> Result<HttpResponse, CustomError> {
+    Banks::delete_bank(path.into_inner())?;
+    Ok(HttpResponse::NoContent().finish())
 }
 
+pub fn init_routes(config:&mut web::ServiceConfig){
+    config
+        .service(get_banks)
+        .service(get_bank)
+        .service(create_bank)
+        .service(update_bank)
+        .service(delete_bank)
+    ;
+}
+
+/*
 pub fn init_routes(cfg:&mut web::ServiceConfig){
     cfg.service(
         web::scope("/api")
@@ -53,3 +55,4 @@ pub fn init_routes(cfg:&mut web::ServiceConfig){
             .service(delete_bank)
     );
 }
+*/
