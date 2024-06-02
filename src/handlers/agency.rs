@@ -1,13 +1,21 @@
+/// Author: Roberto Freitas
+/// Version: 1.0.0
+/// 
+/// This handler is responsible to expose routes responsible to maintain a data 
+/// of the AGENCY resource, it is used with a specific model
+///
 use actix_web::{web, get, post, put, delete, HttpResponse};
 use crate::error_handler::CustomError;
 use crate::models::agency::{Agency, Agencies};
 
+/// Returns a list of AGENCIES from a specific BANK
 #[get("/banks/{bank_id}/agencies")]
 async fn get_agencies(path: web::Path<i32>) -> Result<HttpResponse, CustomError> {
     let agencies = Agencies::get_agencies(path.into_inner())?;
     Ok(HttpResponse::Ok().json(agencies))
 }
 
+/// Return a specific AGENCY from a specific BANK
 #[get("/banks/{bank_id}/agencies/{id}")]
 async fn get_agency(path:web::Path<(i32,i32)>) -> Result<HttpResponse, CustomError> {
     let (bank_id, id) = path.into_inner();
@@ -15,6 +23,7 @@ async fn get_agency(path:web::Path<(i32,i32)>) -> Result<HttpResponse, CustomErr
     Ok(HttpResponse::Ok().json(agencies))
 }
 
+/// Create a new AGENCY in a specific BANK
 #[post("/banks/{bank_id}/agencies")]
 async fn create_agency(path: web::Path<i32>,mut agency: web::Json<Agency>) -> Result<HttpResponse, CustomError> { 
     let bank_id = path.into_inner();
@@ -24,6 +33,7 @@ async fn create_agency(path: web::Path<i32>,mut agency: web::Json<Agency>) -> Re
     Ok(HttpResponse::Created().append_header(("Location", agency_uri)).finish())
 }
 
+/// Change a specific AGENCY of a specific BANK
 #[put("/banks/{bank_id}/agencies/{id}")]
 async fn update_agency(path: web::Path<(i32, i32)>, agency:web::Json<Agency>) -> Result<HttpResponse, CustomError> {
     let (bank_id, id) = path.into_inner();
@@ -31,6 +41,7 @@ async fn update_agency(path: web::Path<(i32, i32)>, agency:web::Json<Agency>) ->
     Ok(HttpResponse::Ok().json(agency))
 }
 
+/// Delete an specific AGENCY of a specific BANK
 #[delete("/banks/{bank_id}/agencies/{id}")]
 async fn delete_agency(path: web::Path<(i32, i32)>) -> Result<HttpResponse, CustomError> {
     let (bank_id, id) = path.into_inner();
@@ -38,6 +49,7 @@ async fn delete_agency(path: web::Path<(i32, i32)>) -> Result<HttpResponse, Cust
     Ok(HttpResponse::NoContent().finish())
 }
 
+/// Initialize all AGENCY routes
 pub fn init_routes(config:&mut web::ServiceConfig) {
     config
         .service(get_agencies)
