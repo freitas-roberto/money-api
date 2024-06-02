@@ -43,16 +43,3 @@ pub fn init_routes(config:&mut web::ServiceConfig){
         .service(delete_bank)
     ;
 }
-
-/*
-pub fn init_routes(cfg:&mut web::ServiceConfig){
-    cfg.service(
-        web::scope("/api")
-            .service(get_banks)
-            .service(get_bank)
-            .service(create_bank)
-            .service(update_bank)
-            .service(delete_bank)
-    );
-}
-*/

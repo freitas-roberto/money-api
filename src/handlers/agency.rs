@@ -47,16 +47,3 @@ pub fn init_routes(config:&mut web::ServiceConfig) {
         .service(delete_agency)
     ;
 }
-
-/*
-pub fn init_routes(cfg:&mut web::ServiceConfig){
-    cfg.service(
-        web::scope("/api")
-            .service(get_agencies)
-            .service(get_agency)
-            .service(create_agency)
-            .service(update_agency)
-            .service(delete_agency)
-    );
-}
-*/
