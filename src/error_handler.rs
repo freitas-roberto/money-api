@@ -1,6 +1,7 @@
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
 use diesel::result::Error as DieselError;
+use argon2::password_hash::Error as ArgonError;
 use serde::Deserialize;
 use serde_json::json;
 use std::fmt;
@@ -51,5 +52,11 @@ impl ResponseError for CustomError {
         };
 
         HttpResponse::build(status_code).json(json!({"status_code": self.error_status_code, "message": error_message }))
+    }
+}
+
+impl From<ArgonError> for CustomError {
+    fn from(error: ArgonError) -> CustomError {
+        CustomError::new(500, format!("Argon2 error: {}", error))
     }
 }

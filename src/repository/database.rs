@@ -1,3 +1,8 @@
+/// Author: Roberto Freitas
+/// Version: 1.0.0
+/// 
+/// Create a pool of connections with a database
+/// 
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;

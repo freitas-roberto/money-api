@@ -21,9 +21,22 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    users (id) {
+        id -> Int4,
+        username -> Text,
+        password -> Text,
+        is_admin -> Bool,
+        is_active -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
 diesel::joinable!(agencies -> banks (bank_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     agencies,
     banks,
+    users,
 );

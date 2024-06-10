@@ -52,6 +52,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(app_data.clone())
             .service(health)
             .service(web::scope("/api")
+                .configure(handlers::user::init_routes)
                 .configure(handlers::bank::init_routes)
                 .configure(handlers::agency::init_routes)
             )

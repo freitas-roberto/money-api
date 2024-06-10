@@ -1,3 +1,9 @@
+/// Author: Roberto Freitas
+/// Version: 1.0.0
+/// 
+/// Objective: This model is responsible for managing the resource in the database
+/// Resource: AGENCY
+///
 use serde::{Deserialize, Serialize};
 use diesel::{AsChangeset, ExpressionMethods, Insertable, Queryable, RunQueryDsl, QueryDsl, Selectable};
 use chrono::NaiveDateTime;
@@ -25,8 +31,10 @@ pub struct Agency {
     pub bank_id: i32,
 }
 
+/// Implements methods responsible for manipulating the resource
 impl Agencies {
 
+    /// Retrieves a list of available resources
     pub fn get_agencies(bank_id: i32) -> Result<Vec<Self>, CustomError> {
         let agencies = agencies::table
             .filter(agencies::bank_id.eq(bank_id))
@@ -34,6 +42,7 @@ impl Agencies {
         Ok(agencies)
     }
 
+    /// Retrieves details of a specific resource 
     pub fn get_agency(bank_id: i32, id: i32) -> Result<Vec<Self>, CustomError> {
         let agencies = agencies::table
             .filter(agencies::bank_id.eq(bank_id))
@@ -42,6 +51,7 @@ impl Agencies {
         Ok(agencies)
     }
 
+    /// Creates a new resource 
     pub fn create_agency(agency: Agency) -> Result<Self, CustomError> {
         let agency = Agency::from(agency);
         let agency = diesel::insert_into(agencies::table)
@@ -50,6 +60,7 @@ impl Agencies {
         Ok(agency)
     }
 
+    /// Updates an existing resource
     pub fn update_agency(bank_id: i32, id: i32, agency: Agency) -> Result<Self, CustomError> {
 
         let agency = diesel::update(agencies::table
@@ -65,6 +76,7 @@ impl Agencies {
         }
     }
 
+    /// Deletes a resource
     pub fn delete_agency(bank_id: i32, id: i32) -> Result<Option<usize> ,CustomError> {
         let res = diesel::delete(agencies::table
             .filter(agencies::bank_id.eq(bank_id))

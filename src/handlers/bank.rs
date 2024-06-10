@@ -1,21 +1,21 @@
 /// Author: Roberto Freitas
 /// Version: 1.0.0
 /// 
-/// This handler is responsible to expose routes responsible to maintain a data 
-/// of the BANK resource, it is used with a specific model
+/// Objective: This handler invokes the correlated model function to manipulate a resource in the database.
+/// Resource: BANK
 ///
 use actix_web::{web, get, post, put, delete, HttpResponse};
 use crate::error_handler::CustomError;
 use crate::models::bank::{Bank, Banks};
 
-/// Returns list of all BANK
+/// Retrieve a list of resources
 #[get("/banks")]
 async fn get_banks() -> Result<HttpResponse, CustomError> {
     let banks = Banks::get_banks()?;
     Ok(HttpResponse::Ok().json(banks))
 }
 
-/// Returns a specific BANK
+/// Retrieve details of a specific resource
 #[get("/banks/{id}")]
 async fn get_bank(path:web::Path<i32>) -> Result<HttpResponse, CustomError> {
     let bank_id = path.into_inner();
@@ -23,7 +23,7 @@ async fn get_bank(path:web::Path<i32>) -> Result<HttpResponse, CustomError> {
     Ok(HttpResponse::Ok().json(banks))
 }
 
-/// Create a new BANK
+/// Request to create a new resource
 #[post("/banks")]
 async fn create_bank(bank:web::Json<Bank>) -> Result<HttpResponse, CustomError> {
     let bank = Banks::create_bank(bank.into_inner())?;
@@ -31,21 +31,21 @@ async fn create_bank(bank:web::Json<Bank>) -> Result<HttpResponse, CustomError> 
     Ok(HttpResponse::Created().append_header(("Location", bank_uri)).finish())
 }
 
-/// Change a specific BANK
+/// Request to update an existing resource
 #[put("/banks/{id}")]
 async fn update_bank(path: web::Path<i32>, bank:web::Json<Bank>) -> Result<HttpResponse, CustomError>  {
     let bank = Banks::update_bank(path.into_inner(), bank.into_inner())?;
     Ok(HttpResponse::Ok().json(bank))
 }
 
-/// Delete a specific BANK
+/// Request to delete a resource
 #[delete("/banks/{id}")]
 async fn delete_bank(path:web::Path<i32>) -> Result<HttpResponse, CustomError> {
     Banks::delete_bank(path.into_inner())?;
     Ok(HttpResponse::NoContent().finish())
 }
 
-/// Initialize all BANK routes
+// Initialize all routes of the resource
 pub fn init_routes(config:&mut web::ServiceConfig){
     config
         .service(get_banks)
